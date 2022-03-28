@@ -24,4 +24,4 @@ const data = [
     console.log('SELECTED', selected)
   }
 
-storiesOf('Test Component', module).add('example', () => <MultiSelect onSubmit={handleSubmit} data={data} title='Select something...' />)
+storiesOf('Test Component', module).add('example', () => <MultiSelect onSubmit={handleSubmit} data={data} title='Select something..' />)
