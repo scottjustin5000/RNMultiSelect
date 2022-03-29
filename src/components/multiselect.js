@@ -1,58 +1,42 @@
 import React, { useState, useRef } from 'react'
 import {
   View,
- // Button,
   Modal,
   StyleSheet,
   TouchableOpacity,
   Text,
+  Image,
   TextInput,
   FlatList
 } from 'react-native'
 
 import Button from './button'
-
 import Checkbox from './checkbox'
-// import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-// import { faCoffee } from '@fortawesome/free-solid-svg-icons'
-
-
-const data = [
-  {
-    id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-    title: 'First Item',
-    label: 'First Item'
-  },
-  {
-    id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-    title: 'Second Item',
-    label: 'Second Item'
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571e29d72',
-    title: 'Third Item',
-    label: 'Third Item'
-  },
-];
+const srch = require("./search-icon.png")
 
 const MultiSelect = (props) => {
-  //if popover render different...
+
   const [visible, setVisible] = useState(false)
-  const [value, setValue] = useState('')
-  const [filteredListData, setFilteredListData] = useState([])
   const DropdownButton = useRef()
   const [dropdownTop, setDropdownTop] = useState(0)
-  const [selected, setSelected] = useState(undefined)
+  const [selected, setSelected] = useState([])
+  const [data, setData] = useState(props.data)
 
   const toggleDropdown = () => {
     visible ? setVisible(false) : openDropdown()
   }
 
+
   const onItemPress = (item) => {
-    setSelected(item)
-  //  onSelect(item)
-    setVisible(false)
+    const found = selected.find(f => f.id === item.id)
+    if(found) {
+      const remaining = selected.filter(f => f.id !== item.id)
+      setSelected(remaining)
+    } else {
+      setSelected([...selected, ...[item]])
+    }
   }
+
   const openDropdown = () => {
     DropdownButton.current.measure((_fx, _fy, _w, h, _px, py) => {
       setDropdownTop(py + (h - 50))
@@ -65,21 +49,26 @@ const MultiSelect = (props) => {
   }
 
   const handleSubmit = () => {
-
+    console.log(selected)
+    setVisible(false)
+    props.onSubmit(selected)
   }
 
-  const handleChangeText = () => {
-
+  const handleChangeText = (e) => {
+    if(!e) {
+      setData(props.data)
+    } else {
+      const filtered = props.data.filter(f => f.label.indexOf(e) > -1)
+      setData(filtered)
+    }
   }
 
-  const renderItem = ({ item }) => (
-    // <TouchableOpacity style={styles.item} onPress={() => onItemPress(item)}>
-    //   <Text>{item.label}</Text>
-    // </TouchableOpacity>
-    <View style={styles.item}>
-    <Checkbox text={item.title} size={25}  />
-    </View>
-  )
+  const renderItem = ({ item }) => {
+    const checked = selected.find(s=> s.id === item.id) ?? null
+    return (<View style={styles.item}>
+      <Checkbox isChecked={checked !== null} text={item.title} item={item} onPress={onItemPress} size={25}  />
+    </View>)
+  }
 
   const renderDropdown = () => {
     return (
@@ -90,12 +79,12 @@ const MultiSelect = (props) => {
         >
           <View style={[styles.dropdown, { top: dropdownTop }]}>
             <View style={{flexDirection:'row'}}>
+            <Image source={srch} style={styles.iconImageStyle} />
             <TextInput 
               placeholder='Search' 
               style={styles.searchInput} 
               onChangeText={(text) => handleChangeText(text)} />
             </View>
-           
             <FlatList
               data={data}
               renderItem={renderItem}
@@ -120,7 +109,6 @@ const MultiSelect = (props) => {
     )
   }
 
-
   return (
     <TouchableOpacity
     ref={DropdownButton}
@@ -128,12 +116,16 @@ const MultiSelect = (props) => {
     onPress={toggleDropdown}
   >
     {renderDropdown()}
-    <Text style={styles.buttonText}>Replace with prop</Text>
+    <Text style={styles.buttonText}>{props.title}</Text>
   </TouchableOpacity>
   )
 }
 
 const styles = StyleSheet.create({
+  iconImageStyle: {
+    width: 50,
+    height: 50,
+  },
   button: {
     flexDirection: 'row',
     alignItems: 'center',

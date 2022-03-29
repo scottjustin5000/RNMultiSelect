@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useRef } from 'react'
 import {
   Text,
   View,
@@ -6,12 +6,12 @@ import {
   Animated,
   TouchableOpacity,
   StyleSheet } from 'react-native'
-  const defaultCheckImage = require("./check.png")
+
+const checkImage = require("./check.png")
 
 const Checkbox = (props) => {
-  const [checked, setChecked] = useState(props.isChecked || false)
-  const spring = useRef(new Animated.Value(1))
 
+  const spring = useRef(new Animated.Value(1))
   const onPress = () => {
     const {
       disableBuiltInState = false,
@@ -26,8 +26,7 @@ const Checkbox = (props) => {
           friction: bounceFriction,
           useNativeDriver,
         }).start()
-        setChecked(!checked)
-        props.onPress && props.onPress(!checked)
+        props.onPress && props.onPress(props.item)
     } else {
       spring.current.setValue(0.7)
       Animated.spring(spring.current, {
@@ -35,11 +34,10 @@ const Checkbox = (props) => {
         friction: bounceFriction,
         useNativeDriver,
       }).start()
-      props.onPress && props.onPress(checked)
+     props.onPress && props.onPress(props.item)
     }
 
   }
-
   const containerStyle = (
     checked,
     fillColor,
@@ -49,7 +47,7 @@ const Checkbox = (props) => {
       width: 25,
       height: 25,
       borderWidth: 1,
-      borderColor: '#ffc484',
+      borderColor: '#007bff',
       borderRadius: props.size / 2,
       alignItems: 'center',
       justifyContent: 'center',
@@ -68,17 +66,17 @@ const Checkbox = (props) => {
 if(!spring.current) return (<View />)
 
   return ( 
-  <TouchableOpacity style={{ alignItems:'center', flexDirection:'row' }} onPress={onPress}>
+  <TouchableOpacity style={styles.wrapper} onPress={onPress}>
       <Animated.View  style={[{ transform: [{ scale: spring.current }] },
-          containerStyle(checked, '#ffc484','#ffc484')
+          containerStyle(props.isChecked, '#007bff','#007bff')
         ]}>
-     { checked && <Image source={defaultCheckImage} style={styles.iconImageStyle} /> }
+     { props.isChecked && <Image source={checkImage} style={styles.iconImageStyle} /> }
      
       </Animated.View>
-      <View style={[styles.textContainer]}>
+      <View style={styles.textContainer}>
           <Text
             style={[
-              textStyle(checked),
+              textStyle(props.isChecked),
               textStyle,
             ]}
           >
@@ -90,6 +88,10 @@ if(!spring.current) return (<View />)
 }
 
 const styles = StyleSheet.create({
+  wrapper: {
+    alignItems: 'center',
+    flexDirection: 'row'
+  },
   iconImageStyle: {
     width: 10,
     height: 10,
@@ -98,6 +100,5 @@ const styles = StyleSheet.create({
     marginLeft: 16,
   }
 })
-
 
 export default Checkbox
